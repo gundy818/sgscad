@@ -67,7 +67,7 @@ function drawer_cutout_size(size, n_drawers, thickness) =
  * n_drawers: the number of drawers
  * thickness: Tthe thickness of walls
  */
-module case (size, n_drawers, thickness, rounded) {
+module case(size, n_drawers, thickness, rounded) {
     // drawer_cutout is [x, y, z]
     drawer_cutout = drawer_cutout_size(size, n_drawers, thickness);
     echo("Drawer cutout = ", drawer_cutout);
@@ -87,10 +87,20 @@ module case (size, n_drawers, thickness, rounded) {
         }
 
         // take the cutouts for each drawer
+        $fn = rounding_fn;
         for (i = [0 : n_drawers-1]) {
             translate([thickness + (thickness + drawer_cutout[0])*i,
                 -1, thickness])
             cube([drawer_cutout[0], drawer_cutout[1]+1, drawer_cutout[2]]);
+            
+            // cut an airhole to allow the drawers to open and close easier
+            // although I do sort of like the slight resistance the air seal
+            //  gives!
+            translate([thickness + (i+0.5) * drawer_cutout[0],
+                thickness/2+size[1], 
+                thickness+drawer_cutout[2]/2])
+            rotate([90, 0, 0])
+            cylinder(h=thickness*2, d=thickness);
         }
     }
 }
