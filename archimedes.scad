@@ -1,6 +1,26 @@
 /**
  * Archimedes screw.
  *
+ * This lets you generate a bare screw, and also a screw embedded in a pipe.
+ * Apparently these screws are best operated at an inclination of 34 degrees
+ * to the horizontal, and efficiency drops dramatically over 40 degrees.
+ * I haven't done any testing, but these numbers sound OK intuitively.
+ *
+ * The pitch of the screw also affects efficiency. These screws default to
+ * a pitch/diameter ratio of 1.4, which is supposed to be optimal, but again
+ * I haven't tested it.
+ *
+ * USAGE:
+ * use <sgscad/archimedes.scad>
+ *
+ * archimedes_screw_tube();
+ *
+ * This generates a default sized tube. Or if you just want the
+ * screw(no tube):
+ *
+ * archimedes_screw(100, 10, 1000, 2);
+ *
+ * Look at the comments on those modules to see the parameters available.
  */
  
 $fs=0.5;
@@ -11,15 +31,10 @@ $fa=1;
  * without going outside it.
  *
  * The blade is like a rectangle with a rounded end on the x+ end.
- * It is based on the origin, in the X+y+ quadrant.
+ * It is based on the origin, in the x+y+ quadrant.
  *
  * x: the length. The curved end has a radius of x.
  * y: The width of the blade.
- *
- * TODO:
- * - Split the actual screw generation into a seperate module, so that it could be
- *   used seperately to the cylinder.
- *
  */
  module blade(x, y) {
     // how big to make the square used to chop bits off
@@ -45,18 +60,39 @@ $fa=1;
 }
 
 /**
- * The archimedes screw. This is a cylinder, with a screw internally.
+ * Bare archimedes screw.
+ *
+ * h: the height/length
+ * r: the radius of the screw
+ * twist: the number of degrees to rotate over the length
+ * thickness: the thickness of the blade
+ */
+module archimedes_screw(h, r, twist, thickness) {
+    union() {
+        linear_extrude(height=h, twist=twist)
+        blade(r+0.1, thickness);
+
+        cylinder(h=h, d=thickness);
+    }
+}
+
+/**
+ * The archimedes screw pipe. This is a cylinder, with a screw internally.
  *
  * h: the height/length of the cylinder
  * r: the inner radius of the tube
- * pitch: how far a full 360 degrees travels. ie. there is a full
- *        360 degree rotation of the blade/screw every 'pitch' distance.
+ * pitch_ratio: the ratio of the screw pitch (distance between threads)
+ *              to the cylinder diameter. Optimal performance should
+ *              be 1.4, but you can override it if you want.
  * thickness: the thickness of the cylinder wall. The blade that is rotated
- *            form the screw is twice this value wide. There is no logical
- *            reason for this, it just seems to work well.
- * 
+ *            to form the screw is also this wide.
  */
-module archimedes_screw(h=100, r=15, pitch=40, thickness=1.75) {
+module archimedes_screw_tube(h=100, r=10, pitch_ratio=1.4, thickness=1.75) {
+    // pitch is 'pitch_ratio * outer diameter of thread.
+    pitch = (r * 2) * 1.4;
+    echo("archimedes pitch: ", pitch);
+    echo("archimedes screw rotations: ", h/pitch);
+
     // t is the number of degrees to twist the blade as it is extruded
     // from the bottom of the cylinder to the top.
     t = (h/pitch) * 360;
@@ -67,13 +103,10 @@ module archimedes_screw(h=100, r=15, pitch=40, thickness=1.75) {
             translate([0,0,-1])
             cylinder(r=r,h=h+2);
         }
-        // sort of an axle. dont know if I need it?
-        //cylinder(h=h, d=2*thickness);
-
-        linear_extrude(height=h, twist=t)
-        blade(r+0.1, thickness*2);
+        archimedes_screw(h, r, t, thickness);
     }
 }
 
-archimedes_screw();
-
+archimedes_screw_tube();
+translate([40, 0, 0])
+archimedes_screw(100, 10, 1000, 2);
