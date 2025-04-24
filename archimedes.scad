@@ -15,6 +15,11 @@ $fa=1;
  *
  * x: the length. The curved end has a radius of x.
  * y: The width of the blade.
+ *
+ * TODO:
+ * - Split the actual screw generation into a seperate module, so that it could be
+ *   used seperately to the cylinder.
+ *
  */
  module blade(x, y) {
     // how big to make the square used to chop bits off
@@ -71,3 +76,4 @@ module archimedes_screw(h=100, r=15, pitch=40, thickness=1.75) {
 }
 
 archimedes_screw();
+
