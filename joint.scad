@@ -14,6 +14,61 @@
 $fn=128;
 
 /**
+ * A dovetail.
+ *
+ * To use, make the male version a specific size...
+ *
+ * wide, narrow: the size of the widest and narrowest parts of the dovetail,
+ *      as seen from the end. If the angle is zero, this will be the measured
+ *      width of the dovetail all the way along, but if the angle is not zero,
+ *      the actual dovetail will be narrower.
+ * h:   The height of the dovetail.
+ * length:  the length of the lid that the dovetail crosses. If the angle is
+ *      zero, the dovetail will be this long.
+ * angle:   (default=0) the angle of the dovetail.
+ * 
+ */
+module dovetail(wide, narrow, h, length, angle=0) {
+    // the extra length needed to make up for the angle
+    extra_len = 2 * wide * sin(angle);
+
+    a = 90 - angle;
+    true_w = wide * sin(a);
+    true_n = narrow * sin(a);
+    true_length = length + extra_len;
+    n_offset = (true_w - true_n)/2;
+
+    poly = [
+        [0, 0],     // front left
+        [true_w, 0],    // front right
+        [n_offset + true_n, h], // back right
+        [n_offset, h]           // back left
+    ];
+
+    difference() {
+        rotate([90, 0, angle])
+        linear_extrude(height=true_length)
+        polygon(points=poly);
+
+        // chop off the left extra
+        translate([-1, 0, -1])
+        cube([wide+2, length, h+2]);
+
+        // and the right extra
+        translate([-1, -2*length, -1])
+        cube([wide*3, length, h+2]);
+    }
+}
+
+dovetail(35, 28, 5.6, 123, 15.1);
+ /*dt_wide = 35;
+    dt_narrow = 28;
+    dt_h = 5.6;
+    dt_length = outer_size[1];
+    dt_angle = 15.1;
+    dt_x_offset = outer_size[0] - 13.6;*/
+
+/**
  * Generates the ball with attached shaft fo=r the joint
  */
  module ball(d, shaft_d, shaft_len) {
@@ -153,4 +208,3 @@ if (false) {
         //circle_angle=90
     );
 }
-
