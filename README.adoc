@@ -1,0 +1,21 @@
+= sgscad
+
+This is a library of OpenSCAD modules, mainly focussed on creating practical,
+3d-printable objects.
+
+this was a private repo, so the docs are a bit sketchy. I'll continue to update them.
+The docs that exist are in this directory:
+
+link:subdir/[Open subdir]
+
+Also, there is documentation in the indevidual files. The files included are:
+
+- archimedes.scad Creates an archimedes screw, either by itself, or built into a pipe;
+- bottlecap.scad  28mm bottlecap thread.
+- chains.scad Make chain links or complete chains
+- desk_drawer.scad  A drawer frame with multiple drawers.
+- joint.scad  Create dovetail or ball and socket joints.
+- panels.scad Create sloped panels, including one that has holes to mount coins for
+  display.
+
+
